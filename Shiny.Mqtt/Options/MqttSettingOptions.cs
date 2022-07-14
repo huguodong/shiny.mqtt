@@ -45,5 +45,10 @@ namespace Shiny.Mqtt
         /// </summary>
         public string Topic { get; set; }
 
+        /// <summary>
+        /// 心跳
+        /// </summary>
+        public int KeepAlive { get; set; } = 60;
+
     }
 }
