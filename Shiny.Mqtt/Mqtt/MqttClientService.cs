@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Shiny.Mqtt
@@ -52,6 +53,7 @@ namespace Shiny.Mqtt
             {
                 throw new ArgumentException("mqtt配置未找到，请配置mqtt链接信息", nameof(MqttSettingOptions));
             }
+            mq.KeepAlive = _options.KeepAlive;
             mq.Connected += MqttClient_Connected;
             mq.Disconnected += MqttClient_Disconnected;
             mq.Reconnect = true;
@@ -61,7 +63,7 @@ namespace Shiny.Mqtt
         private void MqttClient_Disconnected(object sender, EventArgs e)
         {
             _logger.LogInformation("已断开MQTT服务端!:" + DateTime.Now);
-            mq.Dispose();
+            Thread.Sleep(5000);
         }
 
         private void MqttClient_Connected(object sender, EventArgs e)
