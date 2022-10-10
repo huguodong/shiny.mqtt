@@ -10,9 +10,13 @@ namespace Shiny.Mqtt
     public interface IMqttClientService
     {
         /// <summary>
-        /// 获取客户端
+        /// 关闭连接
         /// </summary>
-        /// <returns></returns>
-        MqttClient GetClient();
+        void Close();
+
+        /// <summary>
+        /// 开始连接
+        /// </summary>
+        void Start();
     }
 }

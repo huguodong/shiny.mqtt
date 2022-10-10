@@ -17,26 +17,49 @@ namespace Shiny.Mqtt
     /// </summary>
     public class MqttClientService : IMqttClientService
     {
-        private readonly ILogger<MqttClientService> _logger;
+
         private readonly MqttSettingOptions _options;
-        private MqttClient mq;
-        public MqttClientService(ILogger<MqttClientService> logger, IOptions<MqttSettingOptions> options)
+        /// <summary>
+        /// mqtt对象
+        /// </summary>
+        public MqttClient mq;
+        public MqttClientService(IOptions<MqttSettingOptions> options)
         {
-            this._logger = logger;
             this._options = options.Value;
+            Config();
             Connect();
-
         }
 
-
-        public MqttClient GetClient()
+        public MqttClientService(MqttSettingOptions options)
         {
-            return mq;
+            this._options = options;
+            Config();
         }
 
 
+        /// <summary>
+        /// 开始连接
+        /// </summary>
+        public async void Start()
+        {
+            if (mq.IsConnected)
+            {
+                await mq.DisconnectAsync();
+            }
+            Connect();
+        }
 
-        private async void Connect()
+        /// <summary>
+        /// 断开连接
+        /// </summary>
+        public async void Close() => await mq.DisconnectAsync();
+
+
+        /// <summary>
+        /// 配置mqtt服务器
+        /// </summary>
+        /// <exception cref="ArgumentException"></exception>
+        private void Config()
         {
             if (!string.IsNullOrEmpty(_options.Host))
             {
@@ -57,19 +80,25 @@ namespace Shiny.Mqtt
             mq.Connected += MqttClient_Connected;
             mq.Disconnected += MqttClient_Disconnected;
             mq.Reconnect = true;
+        }
+
+        /// <summary>
+        /// 连接mqtt服务器
+        /// </summary>
+        private async void Connect()
+        {
             await mq.ConnectAsync();
         }
 
         private void MqttClient_Disconnected(object sender, EventArgs e)
         {
-            _logger.LogInformation("已断开MQTT服务端!:" + DateTime.Now);
+            Console.WriteLine("已断开MQTT服务端!:" + DateTime.Now);
             Thread.Sleep(5000);
         }
 
         private void MqttClient_Connected(object sender, EventArgs e)
         {
-            _logger.LogInformation("已连接MQTT服务端!:" + DateTime.Now);
-
+            Console.WriteLine("已连接MQTT服务端!:" + DateTime.Now);
         }
     }
 }
