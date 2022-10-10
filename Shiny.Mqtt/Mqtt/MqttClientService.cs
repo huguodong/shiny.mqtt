@@ -19,10 +19,13 @@ namespace Shiny.Mqtt
     {
 
         private readonly MqttSettingOptions _options;
+
         /// <summary>
         /// mqtt对象
         /// </summary>
-        public MqttClient mq;
+        public MqttClient Client;
+
+
         public MqttClientService(IOptions<MqttSettingOptions> options)
         {
             this._options = options.Value;
@@ -42,9 +45,9 @@ namespace Shiny.Mqtt
         /// </summary>
         public async void Start()
         {
-            if (mq.IsConnected)
+            if (Client.IsConnected)
             {
-                await mq.DisconnectAsync();
+                await Client.DisconnectAsync();
             }
             Connect();
         }
@@ -52,8 +55,16 @@ namespace Shiny.Mqtt
         /// <summary>
         /// 断开连接
         /// </summary>
-        public async void Close() => await mq.DisconnectAsync();
+        public async void Close() => await Client.DisconnectAsync();
 
+        /// <summary>
+        /// 获取客户端对象
+        /// </summary>
+        /// <returns></returns>
+        public MqttClient GetClient()
+        {
+            return Client;
+        }
 
         /// <summary>
         /// 配置mqtt服务器
@@ -63,7 +74,7 @@ namespace Shiny.Mqtt
         {
             if (!string.IsNullOrEmpty(_options.Host))
             {
-                mq = new MqttClient
+                Client = new MqttClient
                 {
                     Server = $"tcp://{_options.Host}:{_options.Port}",
                     UserName = _options.UserName,
@@ -76,10 +87,10 @@ namespace Shiny.Mqtt
             {
                 throw new ArgumentException("mqtt配置未找到，请配置mqtt链接信息", nameof(MqttSettingOptions));
             }
-            mq.KeepAlive = _options.KeepAlive;
-            mq.Connected += MqttClient_Connected;
-            mq.Disconnected += MqttClient_Disconnected;
-            mq.Reconnect = true;
+            Client.KeepAlive = _options.KeepAlive;
+            Client.Connected += MqttClient_Connected;
+            Client.Disconnected += MqttClient_Disconnected;
+            Client.Reconnect = true;
         }
 
         /// <summary>
@@ -87,7 +98,7 @@ namespace Shiny.Mqtt
         /// </summary>
         private async void Connect()
         {
-            await mq.ConnectAsync();
+            await Client.ConnectAsync();
         }
 
         private void MqttClient_Disconnected(object sender, EventArgs e)

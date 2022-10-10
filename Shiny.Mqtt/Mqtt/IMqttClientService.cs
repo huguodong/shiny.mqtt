@@ -15,6 +15,12 @@ namespace Shiny.Mqtt
         void Close();
 
         /// <summary>
+        /// 获取客户端对象
+        /// </summary>
+        /// <returns></returns>
+        MqttClient GetClient();
+
+        /// <summary>
         /// 开始连接
         /// </summary>
         void Start();
